@@ -13,6 +13,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   ips = YAML.load_file('config/development/ips.yaml')
 
   config.vm.define 'monitor' do |monitor|
+    monitor.vm.hostname = 'vagrant-monitor'
     monitor.vm.network 'private_network', ip: ips['monitor']
 	monitor.vm.network :forwarded_port, guest: 8000, host: 8000 # (runserver)
     monitor.vm.provider "virtualbox" do |v|
@@ -21,6 +22,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.define 'replica1' do |replica1|
+    replica1.vm.hostname = 'vagrant-replica1'
     replica1.vm.network 'private_network', ip: ips['replica1']
     replica1.vm.provider "virtualbox" do |v|
       v.memory = 512
@@ -28,6 +30,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.define 'replica2' do |replica2|
+    replica2.vm.hostname = 'vagrant-replica2'
     replica2.vm.network 'private_network', ip: ips['replica2']
     replica2.vm.provider "virtualbox" do |v|
       v.memory = 512
