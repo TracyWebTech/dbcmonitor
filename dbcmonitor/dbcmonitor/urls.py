@@ -1,10 +1,10 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
-urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'dbcmonitor.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
+urlpatterns = patterns(
+    '',
+
+    url(r'^monitor/', include('monitor.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
 )
