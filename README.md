@@ -15,7 +15,7 @@ python manage.py runserver 127.0.0.1:8000
 
 # VM Replica1 and Replica2
 ## Requirements
-mysql-server mysql-client
+python-pip mysql-server mysql-client mysql-utilities
 
 ## Installation (Replica1)
 
