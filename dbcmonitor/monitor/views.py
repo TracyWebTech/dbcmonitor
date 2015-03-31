@@ -1,5 +1,4 @@
 from django.shortcuts import HttpResponse, render_to_response
-from django.http import HttpResponse
 import json
 
 from monitor.models import Replication, SlaveReplication, DatabaseStatus, \
@@ -25,13 +24,13 @@ def home(request):
         table_list.append(table_status)
 
     context = {
-            'tables': table_list,
-            }
+        'tables': table_list,
+    }
     return render_to_response(template, context)
 
 
 def check_replication(request):
-    html = "<html><body>Monitor Replication Request Page</body></html>" 
+    html = "<html><body>Monitor Replication Request Page</body></html>"
 
     return HttpResponse(html)
 
@@ -54,7 +53,7 @@ def save_replication_status(request):
 
         slaves = json_data['slaves']
         for s in slaves:
-            #FIXME: Others filters to identify object
+            # FIXME: Others filters to identify object
             s_query = SlaveReplication.objects.filter(host_name=s['host'])
             if s_query.exists():
                 slave = s_query.first()
@@ -70,7 +69,7 @@ def save_replication_status(request):
 
             databases = s['databases']
             for db in databases:
-                #FIXME: Others filters to identify object
+                # FIXME: Others filters to identify object
                 db_query = DatabaseStatus.objects.filter(name=db['name'])
                 if db_query.exists():
                     comp_db = db_query.first()
@@ -80,7 +79,7 @@ def save_replication_status(request):
                     comp_db.name = db['name']
                     comp_db.save()
 
-                for name,status in db['tables'].items():
+                for name, status in db['tables'].items():
                     t_query = TableStatus.objects.filter(name=name)
                     if t_query.exists():
                         table = t_query.first()
