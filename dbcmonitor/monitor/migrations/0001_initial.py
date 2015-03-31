@@ -49,6 +49,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=20)),
                 ('status', models.CharField(max_length=15)),
+                ('status_date', models.DateTimeField()),
                 ('database', models.ForeignKey(to='monitor.DatabaseStatus')),
             ],
             options={

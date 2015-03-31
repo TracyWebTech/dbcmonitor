@@ -30,6 +30,7 @@ class TableStatus(models.Model):
     database = models.ForeignKey('DatabaseStatus')
     name = models.CharField(max_length=20)
     status = models.CharField(max_length=15)
+    status_date = models.DateTimeField()
 
     def __str__(self):
         return self.name

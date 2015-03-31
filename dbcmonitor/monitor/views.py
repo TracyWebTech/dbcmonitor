@@ -70,6 +70,7 @@ def save_replication_status(request):
                         table.database = comp_db
 
                     table.status = status
+                    table.status_date = db['date']
                     table.save()
 
     return HttpResponse()
