@@ -1,4 +1,4 @@
-from django.shortcuts import HttpResponse
+from django.shortcuts import HttpResponse, render_to_response
 from django.http import HttpResponse
 import json
 
@@ -7,12 +7,32 @@ from monitor.models import Replication, SlaveReplication, DatabaseStatus, \
 
 
 def home(request):
-    html = "<html><body>Monitor Home Page</body></html>" 
-    return HttpResponse(html)
+    template = 'monitor.html'
+    table_list = []
+    for t in TableStatus.objects.all():
+        database = t.database
+        slave = database.replication
+        master = slave.master_rep
+        table_status = {}
+
+        table_status['name'] = t.name
+        table_status['status'] = t.status
+        table_status['date'] = t.status_date
+        table_status['database'] = database.name
+        table_status['slave'] = slave
+        table_status['master'] = master
+
+        table_list.append(table_status)
+
+    context = {
+            'tables': table_list,
+            }
+    return render_to_response(template, context)
 
 
 def check_replication(request):
     html = "<html><body>Monitor Replication Request Page</body></html>" 
+
     return HttpResponse(html)
 
 
@@ -26,6 +46,7 @@ def save_replication_status(request):
         else:
             master = Replication()
             master.host_name = json_data['host']
+            master.conn_status = json_data['status']
             master.log_file = json_data['log_file']
 
         master.log_position = json_data['log_position']
@@ -38,13 +59,12 @@ def save_replication_status(request):
             if s_query.exists():
                 slave = s_query.first()
             else:
-                print("_"*100)
-                print("Nao existe. Vou criar o slave")
                 slave = SlaveReplication()
                 slave.master_rep = master
                 slave.host_name = s['host']
                 slave.log_file = s['log_file']
 
+            slave.conn_status = s['status']
             slave.log_position = s['log_position']
             slave.save()
 
@@ -70,6 +90,7 @@ def save_replication_status(request):
                         table.database = comp_db
 
                     table.status = status
+                    table.status_date = db['date']
                     table.save()
 
     return HttpResponse()
