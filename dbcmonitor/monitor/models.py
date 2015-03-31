@@ -1,26 +1,34 @@
 from django.db import models
 
-# Create your models here.
-
 class Replication(models.Model):
     host_name = models.CharField(max_length=15)
-    rep_user = models.CharField(max_length=30)
     log_file = models.CharField(max_length=50)
     log_position = models.IntegerField()
 
-class SlaveReplication(Database):
-    master_rep = models.ForeignKey('Replication')
+    def __str__(self):
+        return self.host_name
 
-class Comparison(models.Model):
-    master_rep = models.ForeignKey('Replication')
-    slave_rep = models.ForeignKey('SlaveReplication')
+
+class SlaveReplication(Replication):
+    master_rep = models.ForeignKey('Replication',
+            related_name='master_replication')
+
+    def __str__(self):
+        return self.host_name
 
 
 class DatabaseStatus(models.Model):
     replication = models.ForeignKey('Replication')
-    db_name = models.CharField(max_length=20)
+    name = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.name
+
 
 class TableStatus(models.Model):
-    database = models.ForeignKey('Database')
-    table_name = models.CharField(max_length=20)
+    database = models.ForeignKey('DatabaseStatus')
+    name = models.CharField(max_length=20)
     status = models.CharField(max_length=15)
+
+    def __str__(self):
+        return self.name
