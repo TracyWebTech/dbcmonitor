@@ -7,12 +7,32 @@ from monitor.models import Replication, SlaveReplication, DatabaseStatus, \
 
 
 def home(request):
-    html = "<html><body>Monitor Home Page</body></html>" 
-    return HttpResponse(html)
+    template = 'monitor.html'
+    table_list = []
+    for t in TableStatus.objects.all():
+        database = t.database
+        slave = database.replication
+        master = slave.master_rep
+        table_status = {}
+
+        table_status['name'] = t.name
+        table_status['status'] = t.status
+        table_status['date'] = t.status_date
+        table_status['database'] = database.name
+        table_status['slave'] = slave
+        table_status['master'] = master
+
+        table_list.append(table_status)
+
+    context = {
+            'tables': table_list,
+            }
+    return render_to_response(template, context)
 
 
 def check_replication(request):
     html = "<html><body>Monitor Replication Request Page</body></html>" 
+
     return HttpResponse(html)
 
 

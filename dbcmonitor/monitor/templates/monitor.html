@@ -1,0 +1,34 @@
+{% load staticfiles %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block main-content %}
+<h1 class="page-header">Replicated Hosts</h1>
+
+<div class="col-xs-12 col-sm-6 table-responsive">
+  <table class="table table-striped" border=1>
+    <thead>
+      <tr>
+        <th>Date/Time</th>
+        <th>Master Host</th>
+        <th>Slave Host</th>
+        <th>Database</th>
+        <th>Table</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for table in tables %}
+        <tr>
+          <td>{{ table.date }}</td>
+          <td>{{ table.master.host_name }} ({{ table.master.conn_status }})</td>
+          <td>{{ table.slave.host_name }} ({{ table.slave.conn_status }})</td>
+          <td>{{ table.database }}</td>
+          <td>{{ table.name }}</td>
+          <td>{{ table.status }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
