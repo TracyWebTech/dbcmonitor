@@ -1,4 +1,4 @@
-from django.shortcuts import HttpResponse
+from django.shortcuts import HttpResponse, render_to_response
 from django.http import HttpResponse
 import json
 
@@ -26,6 +26,7 @@ def save_replication_status(request):
         else:
             master = Replication()
             master.host_name = json_data['host']
+            master.conn_status = json_data['status']
             master.log_file = json_data['log_file']
 
         master.log_position = json_data['log_position']
@@ -38,13 +39,12 @@ def save_replication_status(request):
             if s_query.exists():
                 slave = s_query.first()
             else:
-                print("_"*100)
-                print("Nao existe. Vou criar o slave")
                 slave = SlaveReplication()
                 slave.master_rep = master
                 slave.host_name = s['host']
                 slave.log_file = s['log_file']
 
+            slave.conn_status = s['status']
             slave.log_position = s['log_position']
             slave.save()
 
