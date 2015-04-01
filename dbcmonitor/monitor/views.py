@@ -86,15 +86,17 @@ def save_replication_status(request):
                     comp_db.save()
 
                 for name, status in db['tables'].items():
-                    t_query = TableStatus.objects.filter(name=name)
-                    if t_query.exists():
-                        table = t_query.first()
+                    t_query = TableStatus.objects.filter(name=name,
+                                                         database=comp_db)
+                    last_table = t_query.last()
+                    if last_table and last_table.status == status:
+                        table = last_table
                     else:
                         table = TableStatus()
                         table.name = name
                         table.database = comp_db
+                        table.status = status
 
-                    table.status = status
                     table.status_date = db['date']
                     table.save()
 
