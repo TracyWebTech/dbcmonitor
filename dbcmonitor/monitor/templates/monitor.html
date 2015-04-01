@@ -1,11 +1,16 @@
 {% load staticfiles %}
 
-{% block title %}Dashboard{% endblock %}
+<html>
+<head>
+  <title>
+    {% block title %}Dashboard{% endblock %}
+  </title>
+</head>
 
-{% block main-content %}
+<body>
+
+<div id="autorefresh" class="col-xs-12 col-sm-6 table-responsive">
 <h1 class="page-header">Replicated Hosts</h1>
-
-<div class="col-xs-12 col-sm-6 table-responsive">
   <table class="table table-striped" border=1>
     <thead>
       <tr>
@@ -31,4 +36,5 @@
     </tbody>
   </table>
 </div>
-{% endblock %}
+</body>
+</html>
