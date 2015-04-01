@@ -1,5 +1,5 @@
-from django.shortcuts import HttpResponse, render_to_response
 import json
+from django.shortcuts import HttpResponse, render_to_response
 
 from monitor.models import Replication, SlaveReplication, DatabaseStatus, \
     TableStatus
@@ -38,6 +38,9 @@ def check_replication(request):
 def save_replication_status(request):
     if request.method == 'POST':
         json_data = json.loads(request.body)
+
+        if json_data['token'] != 'bananabananabanana':
+            return HttpResponse('Unauthorized', status=401)
 
         m_query = Replication.objects.filter(host_name=json_data['host'])
         if m_query.exists():
