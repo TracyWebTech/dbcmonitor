@@ -39,9 +39,6 @@ def save_replication_status(request):
     if request.method == 'POST':
         json_data = json.loads(request.body)
 
-        if json_data['token'] != 'bananabananabanana':
-            return HttpResponse('Unauthorized', status=401)
-
         m_query = Replication.objects.filter(host_name=json_data['host'])
         if m_query.exists():
             master = m_query.first()
@@ -50,6 +47,11 @@ def save_replication_status(request):
             master.host_name = json_data['host']
             master.conn_status = json_data['status']
             master.log_file = json_data['log_file']
+            # FIXME: Handle others organizations
+            master.organization =  Organization.objects.all().first()
+
+        if json_data['token'] != master.organization.token:
+            return HttpResponse('Unauthorized', status=401)
 
         master.log_position = json_data['log_position']
         master.save()
@@ -65,6 +67,7 @@ def save_replication_status(request):
                 slave.master_rep = master
                 slave.host_name = s['host']
                 slave.log_file = s['log_file']
+                slave.organization = slave.master_rep.organization
 
             slave.conn_status = s['status']
             slave.log_position = s['log_position']
