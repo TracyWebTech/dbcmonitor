@@ -1,7 +1,16 @@
 from django.db import models
 
 
+class Organization(models.Model):
+    name = models.CharField(max_length=30)
+    token = models.CharField(max_length=128)
+
+    def __str__(self):
+        return self.name
+
+
 class Replication(models.Model):
+    organization = models.ForeignKey('Organization')
     host_name = models.CharField(max_length=15)
     conn_status = models.CharField(max_length=20)
     log_file = models.CharField(max_length=50)

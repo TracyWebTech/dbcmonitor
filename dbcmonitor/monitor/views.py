@@ -1,8 +1,8 @@
 import json
 from django.shortcuts import HttpResponse, render_to_response
 
-from monitor.models import Replication, SlaveReplication, DatabaseStatus, \
-    TableStatus
+from monitor.models import Organization, Replication, SlaveReplication, \
+    DatabaseStatus, TableStatus
 
 
 def home(request):
