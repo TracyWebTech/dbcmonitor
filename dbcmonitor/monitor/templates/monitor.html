@@ -1,40 +1,58 @@
+{% extends "base.html" %}
 {% load staticfiles %}
 
-<html>
-<head>
-  <title>
-    {% block title %}Dashboard{% endblock %}
-  </title>
-</head>
+{% block title %}Monitor{% endblock %}
 
-<body>
 
-<div id="autorefresh" class="col-xs-12 col-sm-6 table-responsive">
-<h1 class="page-header">Replicated Hosts</h1>
-  <table class="table table-striped" border=1>
-    <thead>
-      <tr>
-        <th>Date/Time</th>
-        <th>Master Host</th>
-        <th>Slave Host</th>
-        <th>Database</th>
-        <th>Table</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for table in tables %}
-        <tr>
-          <td>{{ table.date }}</td>
-          <td>{{ table.master.host_name }} ({{ table.master.conn_status }})</td>
-          <td>{{ table.slave.host_name }} ({{ table.slave.conn_status }})</td>
-          <td>{{ table.database }}</td>
-          <td>{{ table.name }}</td>
-          <td>{{ table.status }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-</body>
-</html>
+{% block main-content %}
+<h2 class="sub-header">Timeline</h2>
+
+{% for table in tables %}
+    <hr class="featurette-divider">
+    <div class="row featurette">
+        <div class="col-md-1 col-md-push-1">
+          {% if table.status == "FAIL" %}
+            <img data-holder-rendered="true" class="featurette-image img-responsive center-block" src="/static/img/checkErro.svg" alt="100x100">
+          {% else %}
+            <img data-holder-rendered="true" class="featurette-image img-responsive center-block" src="/static/img/primary-button-ok.svg" alt="100x100">
+          {% endif %}
+          <br />
+          <span class="text-muted">{{ table.date }}</span>
+        </div>
+        <div class="col-md-6 col-md-push-1">
+          {% if table.status == "FAIL" %}
+            <h2 class="featurette-heading">Erro na replicação do banco <span class="text-muted">{{ table.database }}</span></h2>
+            <p class="lead">
+              O Banco de dados {{ table.database }} apresentou falhas de replicação entre os hosts "{{ table.master }}" e "{{ table.slave }}"
+              Falha: A tabela {{ table.name }} diverge entre os dois hosts.
+            </p>
+          {% else %}
+            <h2 class="featurette-heading">Replicação banco <span class="text-muted">{{ table.database }}</span> funcionando corretamente</h2>
+            <p class="lead">
+              A replicação do banco {{ table.database }}, entre os hosts "{{ table.master }}" e "{{ table.slave }}" está correta.
+            </p>
+          {% endif %}
+        </div>
+    </div>
+{% endfor %}
+
+{% for rep in replications %}
+  {% if rep.status == "FAIL" %}
+    <hr class="featurette-divider">
+    <div class="row featurette">
+        <div class="col-md-1 col-md-push-1">
+          <img data-holder-rendered="true" class="featurette-image img-responsive center-block" src="/static/img/no-connected.png" alt="100x100">
+          <br />
+          <span class="text-muted">{{ rep.date }}</span>
+        </div>
+        <div class="col-md-6 col-md-push-1">
+          <h2 class="featurette-heading">Erro na replicação do banco <span class="text-muted">{{ rep.name }}</span></h2>
+          <p class="lead">
+            O Host "{{ rep.name }}" não está respondendo.
+          </p>
+        </div>
+    </div>
+  {% endif %}
+{% endfor %}
+
+{% endblock %}
