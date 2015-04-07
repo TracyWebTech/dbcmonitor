@@ -1,21 +1,22 @@
 import json
 from django.shortcuts import HttpResponse, render_to_response
 
-from monitor.models import Organization, Replication, SlaveReplication, \
-    DatabaseStatus, TableStatus
+from monitor.models import Organization, Replication, ReplicationStatus, \
+    Database, Table, TableStatus
+
+from monitor.utils.update import update_rep_status
 
 
 def home(request):
     template = 'monitor.html'
     table_list = []
     for t in TableStatus.objects.all().order_by('-status_date'):
-        print("<<<{}>>>".format(t.status_date))
-        database = t.database
+        database = t.table.database
         slave = database.replication
         master = slave.master_rep
         table_status = {}
 
-        table_status['name'] = t.name
+        table_status['name'] = t.table.name
         table_status['status'] = t.status
         table_status['date'] = t.status_date
         table_status['database'] = database.name
@@ -29,14 +30,11 @@ def home(request):
         table_list.append(table_status)
 
     rep_list = []
-    for rep in Replication.objects.all():
-        rep_status = {}
-        rep_status['name'] = rep.host_name
-        rep_status['status'] = rep.conn_status
 
-        rep_status['fail'] = False
-        if rep.conn_status == "ERROR":
-            rep_status['fail'] = True
+    for rep in ReplicationStatus.objects.all():
+        rep_status = {}
+        rep_status['name'] = rep.replication.host_name
+        rep_status['status'] = rep.conn_status
 
         rep_list.append(rep_status)
 
@@ -63,59 +61,68 @@ def save_replication_status(request):
         else:
             master = Replication()
             master.host_name = json_data['host']
-            master.conn_status = json_data['status']
-            master.log_file = json_data['log_file']
             # FIXME: Handle others organizations
-            master.organization =  Organization.objects.all().first()
+            master.organization = Organization.objects.all().first()
 
         if json_data['token'] != master.organization.token:
             return HttpResponse('Unauthorized', status=401)
 
-        master.log_position = json_data['log_position']
         master.save()
 
+        # Save or Update Master Status
+        update_rep_status(master, json_data)
+
+        # Save or Update Each Slave
         slaves = json_data['slaves']
-        for s in slaves:
-            # FIXME: Others filters to identify object
-            s_query = SlaveReplication.objects.filter(host_name=s['host'])
+        for data in slaves:
+            s_query = Replication.objects.filter(host_name=data['host'],
+                                                 master_rep=master)
+
             if s_query.exists():
                 slave = s_query.first()
             else:
-                slave = SlaveReplication()
+                slave = Replication()
                 slave.master_rep = master
-                slave.host_name = s['host']
-                slave.log_file = s['log_file']
+                slave.host_name = data['host']
                 slave.organization = slave.master_rep.organization
+                slave.save()
 
-            slave.conn_status = s['status']
-            slave.log_position = s['log_position']
-            slave.save()
+            update_rep_status(slave, data)
 
-            databases = s['databases']
+            databases = data['databases']
+
             for db in databases:
-                # FIXME: Others filters to identify object
-                db_query = DatabaseStatus.objects.filter(name=db['name'])
+                db_query = Database.objects.filter(name=db['name'],
+                                                   replication=slave)
                 if db_query.exists():
-                    comp_db = db_query.first()
+                    database = db_query.first()
                 else:
-                    comp_db = DatabaseStatus()
-                    comp_db.replication = slave
-                    comp_db.name = db['name']
-                    comp_db.save()
+                    database = Database()
+                    database.replication = slave
+                    database.name = db['name']
+                    database.save()
 
                 for name, status in db['tables'].items():
-                    t_query = TableStatus.objects.filter(name=name,
-                                                         database=comp_db)
-                    last_table = t_query.last()
-                    if last_table and last_table.status == status:
-                        table = last_table
-                    else:
-                        table = TableStatus()
+                    t_query = Table.objects.filter(name=name,
+                                                   database=database)
+                    table = t_query.last()
+                    if not table:
+                        table = Table()
+                        table.database = database
                         table.name = name
-                        table.database = comp_db
-                        table.status = status
+                        table.save()
 
-                    table.status_date = db['date']
-                    table.save()
+                    t_status = TableStatus.objects.filter(table=table)
+                    last_status = t_status.last()
+
+                    if last_status and last_status.status == status:
+                        table_status = last_status
+                    else:
+                        table_status = TableStatus()
+                        table_status.table = table
+                        table_status.status = status
+
+                    table_status.status_date = db['date']
+                    table_status.save()
 
     return HttpResponse()

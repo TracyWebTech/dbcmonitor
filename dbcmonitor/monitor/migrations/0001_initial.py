@@ -11,9 +11,10 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='DatabaseStatus',
+            name='Database',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False,
+                 auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=20)),
             ],
             options={
@@ -23,7 +24,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Organization',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False,
+                 auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=30)),
                 ('token', models.CharField(max_length=128)),
             ],
@@ -34,49 +36,61 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Replication',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False,
+                 auto_created=True, primary_key=True)),
                 ('host_name', models.CharField(max_length=15)),
-                ('conn_status', models.CharField(max_length=20)),
-                ('log_file', models.CharField(max_length=50)),
-                ('log_position', models.IntegerField()),
+                ('master_rep', models.ForeignKey(related_name='master',
+                 blank=True, to='monitor.Replication', null=True)),
+                ('organization', models.ForeignKey(to='monitor.Organization')),
             ],
             options={
             },
             bases=(models.Model,),
         ),
         migrations.CreateModel(
-            name='SlaveReplication',
+            name='ReplicationStatus',
             fields=[
-                ('replication_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='monitor.Replication')),
-                ('master_rep', models.ForeignKey(related_name='master_replication', to='monitor.Replication')),
+                ('id', models.AutoField(verbose_name='ID', serialize=False,
+                 auto_created=True, primary_key=True)),
+                ('conn_status', models.CharField(max_length=20)),
+                ('status_date', models.DateTimeField()),
+                ('log_file', models.CharField(max_length=50)),
+                ('log_position', models.IntegerField()),
+                ('replication', models.ForeignKey(to='monitor.Replication')),
             ],
             options={
             },
-            bases=('monitor.replication',),
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Table',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False,
+                 auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=20)),
+                ('database', models.ForeignKey(to='monitor.Database')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='TableStatus',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=20)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False,
+                 auto_created=True, primary_key=True)),
                 ('status', models.CharField(max_length=15)),
                 ('status_date', models.DateTimeField()),
-                ('database', models.ForeignKey(to='monitor.DatabaseStatus')),
+                ('table', models.ForeignKey(to='monitor.Table')),
             ],
             options={
             },
             bases=(models.Model,),
         ),
         migrations.AddField(
-            model_name='replication',
-            name='organization',
-            field=models.ForeignKey(to='monitor.Organization'),
-            preserve_default=True,
-        ),
-        migrations.AddField(
-            model_name='databasestatus',
+            model_name='database',
             name='replication',
-            field=models.ForeignKey(to='monitor.SlaveReplication'),
+            field=models.ForeignKey(to='monitor.Replication'),
             preserve_default=True,
         ),
     ]
