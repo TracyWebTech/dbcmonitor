@@ -8,7 +8,8 @@ from monitor.models import Organization, Replication, SlaveReplication, \
 def home(request):
     template = 'monitor.html'
     table_list = []
-    for t in TableStatus.objects.all():
+    for t in TableStatus.objects.all().order_by('-status_date'):
+        print("<<<{}>>>".format(t.status_date))
         database = t.database
         slave = database.replication
         master = slave.master_rep
@@ -21,10 +22,27 @@ def home(request):
         table_status['slave'] = slave
         table_status['master'] = master
 
+        table_status['fail'] = False
+        if t.status == "FAIL":
+            table_status['fail'] = True
+
         table_list.append(table_status)
+
+    rep_list = []
+    for rep in Replication.objects.all():
+        rep_status = {}
+        rep_status['name'] = rep.host_name
+        rep_status['status'] = rep.conn_status
+
+        rep_status['fail'] = False
+        if rep.conn_status == "ERROR":
+            rep_status['fail'] = True
+
+        rep_list.append(rep_status)
 
     context = {
         'tables': table_list,
+        'replications': rep_list,
     }
     return render_to_response(template, context)
 
