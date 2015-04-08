@@ -29,7 +29,7 @@
               O Banco de dados {{ database.name }} apresentou falhas de replicação entre os hosts "{{ database.master }}" e "{{ database.slave }}"
             </p>
           {% else %}
-            <h2 class="featurette-heading">Replicação banco <span class="text-muted">{{ table.database }}</span> funcionando corretamente</h2>
+            <h2 class="featurette-heading">Replicação banco <span class="text-muted">{{ database.name }}</span> funcionando corretamente</h2>
             <p class="lead">
               A replicação do banco {{ database.name }}, entre os hosts "{{ database.master }}" e "{{ database.slave }}" está correta.
             </p>
