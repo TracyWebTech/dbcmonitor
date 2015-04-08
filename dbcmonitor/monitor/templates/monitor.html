@@ -7,52 +7,65 @@
 {% block main-content %}
 <h2 class="sub-header">Timeline</h2>
 
-{% for table in tables %}
-    <hr class="featurette-divider">
+{% for database in databases %}
     <div class="row featurette">
         <div class="col-md-1 col-md-push-1">
-          {% if table.status == "FAIL" %}
+          {% if database.status == "FAIL" %}
             <img data-holder-rendered="true" class="featurette-image img-responsive center-block" src="/static/img/checkErro.svg" alt="100x100">
           {% else %}
             <img data-holder-rendered="true" class="featurette-image img-responsive center-block" src="/static/img/primary-button-ok.svg" alt="100x100">
           {% endif %}
-          <br />
-          <span class="text-muted">{{ table.date }}</span>
         </div>
-        <div class="col-md-6 col-md-push-1">
-          {% if table.status == "FAIL" %}
-            <h2 class="featurette-heading">Erro na replicação do banco <span class="text-muted">{{ table.database }}</span></h2>
+
+
+        <div class="col-md-7 col-md-push-1">
+          <div class="col-md-5">
+            <span class="text-muted">{{ database.date }}</span>
+          </div>
+
+          {% if database.status == "FAIL" %}
+            <h2 class="featurette-heading">Erro na replicação do banco <span class="text-muted">{{ database.name }}</span></h2>
             <p class="lead">
-              O Banco de dados {{ table.database }} apresentou falhas de replicação entre os hosts "{{ table.master }}" e "{{ table.slave }}"
-              Falha: A tabela {{ table.name }} diverge entre os dois hosts.
+              O Banco de dados {{ database.name }} apresentou falhas de replicação entre os hosts "{{ database.master }}" e "{{ database.slave }}"
             </p>
           {% else %}
             <h2 class="featurette-heading">Replicação banco <span class="text-muted">{{ table.database }}</span> funcionando corretamente</h2>
             <p class="lead">
-              A replicação do banco {{ table.database }}, entre os hosts "{{ table.master }}" e "{{ table.slave }}" está correta.
+              A replicação do banco {{ database.name }}, entre os hosts "{{ database.master }}" e "{{ database.slave }}" está correta.
             </p>
           {% endif %}
+  {% if database.status == "FAIL" %}
+    {% for table in database.tables %}
+
+      <hr class="featurette-divider">
+      <div class="row featurette">
+          <div class="col-md-2">
+            {% if table.status == "FAIL" %}
+              <img data-holder-rendered="true" class="featurette-image img-responsive center-block" src="/static/img/checkErro.svg" alt="100x100">
+            {% else %}
+              <img data-holder-rendered="true" class="featurette-image img-responsive center-block" src="/static/img/primary-button-ok.svg" alt="100x100">
+            {% endif %}
+          </div>
+
+          <div class="col-md-10">
+            {% if table.status == "FAIL" %}
+              <p class="lead">
+                Falha: A tabela <span class="text-muted">{{ table.name }}</span> diverge entre os dois hosts.
+              </p>
+            {% else %}
+              <p class="lead">
+                Replicação da tabela <span class="text-muted">{{ table.name }}</span> funcionando corretamente.
+              </p>
+            {% endif %}
+          </div>
+      </div>
+
+    {% endfor %}
+  {% endif %}
+
         </div>
     </div>
 {% endfor %}
 
-{% for rep in replications %}
-  {% if rep.status == "FAIL" %}
-    <hr class="featurette-divider">
-    <div class="row featurette">
-        <div class="col-md-1 col-md-push-1">
-          <img data-holder-rendered="true" class="featurette-image img-responsive center-block" src="/static/img/no-connected.png" alt="100x100">
-          <br />
-          <span class="text-muted">{{ rep.date }}</span>
-        </div>
-        <div class="col-md-6 col-md-push-1">
-          <h2 class="featurette-heading">Erro na replicação do banco <span class="text-muted">{{ rep.name }}</span></h2>
-          <p class="lead">
-            O Host "{{ rep.name }}" não está respondendo.
-          </p>
-        </div>
-    </div>
-  {% endif %}
-{% endfor %}
 
 {% endblock %}

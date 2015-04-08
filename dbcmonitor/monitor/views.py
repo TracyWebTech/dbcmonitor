@@ -9,25 +9,34 @@ from monitor.utils.update import update_rep_status
 
 def home(request):
     template = 'monitor.html'
-    table_list = []
-    for t in TableStatus.objects.all().order_by('-status_date'):
-        database = t.table.database
-        slave = database.replication
-        master = slave.master_rep
-        table_status = {}
+    db_status_list = []
+    for db in Database.objects.all():
+        db_status = {}
+        db_status['name'] = db.name
+        db_status['slave'] = db.replication
+        db_status['master'] = db.replication.master_rep
+        db_status['date'] = None
 
-        table_status['name'] = t.table.name
-        table_status['status'] = t.status
-        table_status['date'] = t.status_date
-        table_status['database'] = database.name
-        table_status['slave'] = slave
-        table_status['master'] = master
+        table_list = []
+        for t in Table.objects.filter(database=db):
+            t_status = TableStatus.objects.filter(table=t).last()
 
-        table_status['fail'] = False
-        if t.status == "FAIL":
-            table_status['fail'] = True
+            table = {}
+            table['name'] = t.name
+            table['status'] = t_status.status
+            table['database'] = db
+            table['master'] = db_status['master']
+            table['slave'] = db_status['slave']
 
-        table_list.append(table_status)
+            table_list.append(table)
+
+            if t_status.status != 'pass':
+                db_status['status'] = 'FAIL'
+
+            db_status['date'] = t_status.status_date
+
+        db_status['tables'] = table_list
+        db_status_list.append(db_status)
 
     rep_list = []
 
@@ -39,7 +48,7 @@ def home(request):
         rep_list.append(rep_status)
 
     context = {
-        'tables': table_list,
+        'databases': db_status_list,
         'replications': rep_list,
     }
     return render_to_response(template, context)
@@ -110,7 +119,8 @@ def save_replication_status(request):
                         table = Table()
                         table.database = database
                         table.name = name
-                        table.save()
+                    table.last_status = status
+                    table.save()
 
                     t_status = TableStatus.objects.filter(table=table)
                     last_status = t_status.last()
