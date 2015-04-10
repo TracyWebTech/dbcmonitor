@@ -17,6 +17,22 @@ def home(request):
         db_status['master'] = db.replication.master_rep
         db_status['date'] = None
 
+        last_master_status = \
+            ReplicationStatus.objects.filter(
+                replication=db_status['master']
+            ).last()
+
+        last_slave_status = \
+            ReplicationStatus.objects.filter(
+                replication=db_status['slave']
+            ).last()
+
+        master_status = last_master_status.conn_status
+        slave_status = last_slave_status.conn_status
+
+        if master_status != 'connected' or slave_status != 'connected':
+            continue
+
         table_list = []
         for t in Table.objects.filter(database=db):
             t_status = TableStatus.objects.filter(table=t).last()
