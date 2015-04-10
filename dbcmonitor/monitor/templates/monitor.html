@@ -5,67 +5,83 @@
 
 
 {% block main-content %}
-<h2 class="sub-header">Timeline</h2>
 
-{% for database in databases %}
-    <div class="row featurette">
-        <div class="col-md-1 col-md-push-1">
-          {% if database.status == "FAIL" %}
-            <img data-holder-rendered="true" class="featurette-image img-responsive center-block" src="/static/img/checkErro.svg" alt="100x100">
-          {% else %}
-            <img data-holder-rendered="true" class="featurette-image img-responsive center-block" src="/static/img/primary-button-ok.svg" alt="100x100">
-          {% endif %}
-        </div>
+  {% block timeline %}
+  <h2 class="sub-header">Timeline</h2>
 
-
-        <div class="col-md-7 col-md-push-1">
-          <div class="col-md-5">
-            <span class="text-muted">{{ database.date }}</span>
-          </div>
-
-          {% if database.status == "FAIL" %}
-            <h2 class="featurette-heading">Erro na replicação do banco <span class="text-muted">{{ database.name }}</span></h2>
-            <p class="lead">
-              O Banco de dados {{ database.name }} apresentou falhas de replicação entre os hosts "{{ database.master }}" e "{{ database.slave }}"
-            </p>
-          {% else %}
-            <h2 class="featurette-heading">Replicação banco <span class="text-muted">{{ database.name }}</span> funcionando corretamente</h2>
-            <p class="lead">
-              A replicação do banco {{ database.name }}, entre os hosts "{{ database.master }}" e "{{ database.slave }}" está correta.
-            </p>
-          {% endif %}
-  {% if database.status == "FAIL" %}
-    {% for table in database.tables %}
-
-      <hr class="featurette-divider">
+  {% for database in databases %}
       <div class="row featurette">
-          <div class="col-md-2">
-            {% if table.status == "FAIL" %}
+
+        <!--
+          <div class="col-md-1 col-md-push-1">
+            {% if database.status == "FAIL" %}
               <img data-holder-rendered="true" class="featurette-image img-responsive center-block" src="/static/img/checkErro.svg" alt="100x100">
             {% else %}
               <img data-holder-rendered="true" class="featurette-image img-responsive center-block" src="/static/img/primary-button-ok.svg" alt="100x100">
             {% endif %}
           </div>
+        -->
 
-          <div class="col-md-10">
-            {% if table.status == "FAIL" %}
+          <div class="col-md-7 col-xm-7 col-md-push-1">
+            <div class="col-md-5">
+              <span class="text-muted">{{ database.date }}</span>
+            </div>
+
+            {% if database.status == "FAIL" %}
+              <h2 class="featurette-heading">
+                <span class="text-danger">
+                  <b>{{ database.name }}: </b>
+                  Database Replication Error
+                </span>
+              </h2>
               <p class="lead">
-                Falha: A tabela <span class="text-muted">{{ table.name }}</span> diverge entre os dois hosts.
+                {{ database.name }} replication between "{{ database.master }}" and "{{ database.slave }}" has been failed.
               </p>
             {% else %}
+              <h2 class="featurette-heading">
+                <span class="text-success">
+                  <b>{{ database.name }}: </b>
+                  Database Replication working properly
+                </span>
+              </h2>
               <p class="lead">
-                Replicação da tabela <span class="text-muted">{{ table.name }}</span> funcionando corretamente.
+                {{ database.name }} replication between "{{ database.master }}" e "{{ database.slave }}" is working properly.
               </p>
             {% endif %}
+    {% if database.status == "FAIL" %}
+      {% for table in database.tables %}
+
+        <hr class="featurette-divider hidden-sm">
+        <div class="row featurette">
+            <div class="col-md-1 col-sm-1 col-sm-1 col-md-push-1 hidden-xs hidden-sm">
+              {% if table.status == "FAIL" %}
+                <img data-holder-rendered="true" class="featurette-image img-responsive center-block" src="/static/img/checkErro.svg">
+              {% else %}
+                <img data-holder-rendered="true" class="featurette-image img-responsive center-block" src="/static/img/primary-button-ok.svg">
+              {% endif %}
+            </div>
+
+            <div class="col-md-10 col-md-push-1 col-sm-push-1 col-xs-push-1">
+              {% if table.status == "FAIL" %}
+                <p class="lead">
+                <font class="bg-danger">Fail: The <span class="text-primary">{{ table.name }}</span> table differs between both hosts.</font>
+                </p>
+              {% else %}
+                <p class="lead">
+                  Pass: The <span class="text-primary">{{ table.name }}</span> table is the same in both hosts.
+                </p>
+              {% endif %}
+            </div>
+        </div>
+
+      {% endfor %}
+    {% endif %}
+
           </div>
       </div>
-
-    {% endfor %}
-  {% endif %}
-
-        </div>
-    </div>
-{% endfor %}
+    <hr class="featurette-divider">
+  {% endfor %}
 
 
+  {% endblock %}
 {% endblock %}
