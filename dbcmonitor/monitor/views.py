@@ -15,7 +15,7 @@ def home(request):
         db_status['name'] = db.name
         db_status['slave'] = db.replication
         db_status['master'] = db.replication.master_rep
-        db_status['date'] = None
+        db_status['date'] = db.status_date
 
         last_master_status = \
             ReplicationStatus.objects.filter(
@@ -48,8 +48,6 @@ def home(request):
 
             if t_status.status != 'pass':
                 db_status['status'] = 'FAIL'
-
-            db_status['date'] = t_status.status_date
 
         db_status['tables'] = table_list
         db_status_list.append(db_status)
@@ -89,7 +87,13 @@ def save_replication_status(request):
             master = Replication()
             master.host_name = json_data['host']
             # FIXME: Handle others organizations
-            master.organization = Organization.objects.all().first()
+            organization_q = Organization.objects.all()
+
+            if not organization_q.exists():
+                return HttpResponse("Replication must be of some organization",
+                                    status=500)
+
+            master.organization = organization_q.first()
 
         if json_data['token'] != master.organization.token:
             return HttpResponse('Unauthorized', status=401)
@@ -106,12 +110,13 @@ def save_replication_status(request):
 
             if s_query.exists():
                 slave = s_query.first()
+                slave.master_rep = master
             else:
                 slave = Replication()
                 slave.host_name = data['host']
+                slave.master_rep = master
                 slave.organization = slave.master_rep.organization
 
-            slave.master_rep = master
             slave.save()
 
             update_rep_status(slave, data)
@@ -127,6 +132,7 @@ def save_replication_status(request):
                     database = Database()
                     database.replication = slave
                     database.name = db['name']
+                    database.status_date = db['date']
                     database.save()
 
                 for name, status in db['tables'].items():
@@ -137,6 +143,7 @@ def save_replication_status(request):
                         table = Table()
                         table.database = database
                         table.name = name
+
                     table.last_status = status
                     table.save()
 
@@ -149,8 +156,6 @@ def save_replication_status(request):
                         table_status = TableStatus()
                         table_status.table = table
                         table_status.status = status
-
-                    table_status.status_date = db['date']
-                    table_status.save()
+                        table_status.save()
 
     return HttpResponse()

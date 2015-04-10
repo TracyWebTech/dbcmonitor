@@ -40,8 +40,12 @@ class ReplicationStatus(models.Model):
 class Database(models.Model):
     replication = models.ForeignKey('Replication')
     name = models.CharField(max_length=20)
+    status_date = models.DateTimeField()
 
     def __str__(self):
+        return "[{}] {}: {}".format(self.status_date,
+                                    self.name,
+                                    self.replication)
         return self.name
 
 
@@ -57,7 +61,9 @@ class Table(models.Model):
 class TableStatus(models.Model):
     table = models.ForeignKey('Table')
     status = models.CharField(max_length=15)
-    status_date = models.DateTimeField()
 
     def __str__(self):
-        return "[{}] {}: {}".format(self.status_date, self.table, self.status)
+        database = self.table.database
+        return "[{}] {}: {}".format(database.status_date,
+                                    self.table,
+                                    self.status)
