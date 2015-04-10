@@ -100,17 +100,17 @@ def save_replication_status(request):
         # Save or Update Each Slave
         slaves = json_data['slaves']
         for data in slaves:
-            s_query = Replication.objects.filter(host_name=data['host'],
-                                                 master_rep=master)
+            s_query = Replication.objects.filter(host_name=data['host'])
 
             if s_query.exists():
                 slave = s_query.first()
             else:
                 slave = Replication()
-                slave.master_rep = master
                 slave.host_name = data['host']
                 slave.organization = slave.master_rep.organization
-                slave.save()
+
+            slave.master_rep = master
+            slave.save()
 
             update_rep_status(slave, data)
 
