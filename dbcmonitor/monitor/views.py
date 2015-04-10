@@ -7,7 +7,7 @@ from monitor.models import Organization, Replication, ReplicationStatus, \
 from monitor.utils.update import update_rep_status
 
 
-def home(request):
+def dashboard(request):
     template = 'monitor.html'
     db_status_list = []
     for db in Database.objects.all().order_by('-status_date'):

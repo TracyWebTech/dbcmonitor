@@ -3,7 +3,7 @@ from django.conf.urls import patterns, url
 urlpatterns = patterns(
     '',
 
-    url(r'^$', 'monitor.views.home', name='home'),
+    url(r'^$', 'monitor.views.dashboard', name='dashboard'),
 
     url(r'^checkreplication/?', 'monitor.views.check_replication',
         name='check_replications'),
