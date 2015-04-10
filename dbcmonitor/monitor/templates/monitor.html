@@ -7,6 +7,7 @@
 {% block main-content %}
   {% block host-status %}
 
+  <h2 class="sub-header col-md-7 col-xm-7 col-md-push-1">Hosts Status</h2>
   <div class="table-responsive col-md-7 col-md-push-1">
     <table class="table table-bordered table-striped table-hover">
       <thead>
@@ -30,6 +31,46 @@
             <td>{{ replication.name }}</td>
             <td>{{ replication.status }}</td>
             <td>{{ replication.status_date }}</td>
+
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% endblock %}
+
+  {% block databases-status %}
+
+  <h2 class="sub-header col-md-7 col-xm-7 col-md-push-1">Databases Status</h2>
+  <div class="table-responsive col-md-7 col-md-push-1">
+    <table class="table table-bordered table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Replication Master</th>
+          <th>Replication Slave</th>
+          <th>Database</th>
+          <th>Status</th>
+          <th>Status Date</th>
+        </tr>
+      <thead>
+
+      <tbody>
+        {% for database in databases %}
+
+          {% if database.status == "pass" %}
+            <tr class="success">
+          {% elif database.status == "FAIL" %}
+            <tr class="danger">
+          {% else %}
+            <tr class="warning">
+          {% endif %}
+
+            <td>{{ database.master }}</td>
+            <td>{{ database.slave }}</td>
+            <td>{{ database.name }}</td>
+            <td>{{ database.status }}</td>
+            <td>{{ database.date }}</td>
 
           </tr>
         {% endfor %}

@@ -16,6 +16,7 @@ def dashboard(request):
         db_status['slave'] = db.replication
         db_status['master'] = db.replication.master_rep
         db_status['date'] = db.status_date
+        db_status['status'] = 'pass'
 
         last_master_status = \
             ReplicationStatus.objects.filter(
