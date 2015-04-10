@@ -56,10 +56,12 @@ def home(request):
 
     rep_list = []
 
-    for rep in ReplicationStatus.objects.all():
+    for rep in Replication.objects.all():
+        last_status = ReplicationStatus.objects.filter(replication=rep).last()
         rep_status = {}
-        rep_status['name'] = rep.replication.host_name
-        rep_status['status'] = rep.conn_status
+        rep_status['name'] = rep.host_name
+        rep_status['status'] = last_status.conn_status
+        rep_status['status_date'] = last_status.status_date
 
         rep_list.append(rep_status)
 
