@@ -10,7 +10,7 @@ from monitor.utils.update import update_rep_status
 def home(request):
     template = 'monitor.html'
     db_status_list = []
-    for db in Database.objects.all():
+    for db in Database.objects.all().order_by('-status_date'):
         db_status = {}
         db_status['name'] = db.name
         db_status['slave'] = db.replication
@@ -132,8 +132,8 @@ def save_replication_status(request):
                     database = Database()
                     database.replication = slave
                     database.name = db['name']
-                    database.status_date = db['date']
-                    database.save()
+                database.status_date = db['date']
+                database.save()
 
                 for name, status in db['tables'].items():
                     t_query = Table.objects.filter(name=name,
@@ -156,6 +156,7 @@ def save_replication_status(request):
                         table_status = TableStatus()
                         table_status.table = table
                         table_status.status = status
+                        table_status.status_date = database.status_date
                         table_status.save()
 
     return HttpResponse()

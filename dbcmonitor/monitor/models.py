@@ -61,9 +61,9 @@ class Table(models.Model):
 class TableStatus(models.Model):
     table = models.ForeignKey('Table')
     status = models.CharField(max_length=15)
+    status_date = models.DateTimeField()
 
     def __str__(self):
-        database = self.table.database
-        return "[{}] {}: {}".format(database.status_date,
+        return "[{}] {}: {}".format(self.status_date,
                                     self.table,
                                     self.status)
