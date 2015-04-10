@@ -57,11 +57,7 @@
 
     <div class="container-fluid">
       <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          {% block sidebar %} 
-          {% endblock %} 
-        </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <div class="col-sm-10 col-sm-offset-1 col-md-10 col-md-offset-2 main">
           {% block main-content %}{% endblock %}
         </div>
       </div>
@@ -72,7 +68,6 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script src="{% static 'third-party/bootstrap/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'third-party/dashboard/js/docs.min.js' %}"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="{% static 'third-party/dashboard/js/ie10-viewport-bug-workaround.js' %}"></script>
   </body>
