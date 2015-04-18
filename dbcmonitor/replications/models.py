@@ -3,6 +3,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from organizations.models import Organization
 
+from .managers import ReplicationManager
+
 
 class Replication(models.Model):
     organization = models.ForeignKey(Organization)
@@ -12,6 +14,8 @@ class Replication(models.Model):
 
     def __str__(self):
         return '{} ({} -> {})'.format(self.database, self.master, self.slave)
+
+    objects = ReplicationManager()
 
 
 class ReplicationStatus(models.Model):
@@ -24,7 +28,7 @@ class ReplicationStatus(models.Model):
         (STATUS_UNKNOWN, 'Unknown Error'),
     )
 
-    replication = models.ForeignKey(Replication)
+    replication = models.ForeignKey(Replication, related_name='status')
 
     status = models.IntegerField(choices=STATUS_CHOICES)
     log_file = models.CharField(max_length=50)
@@ -34,6 +38,7 @@ class ReplicationStatus(models.Model):
 
     class Meta:
         verbose_name_plural = _('Replication Status')
+        get_latest_by = 'sent_time'
 
 
 class ReplicationError(models.Model):
