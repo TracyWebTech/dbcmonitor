@@ -1,6 +1,6 @@
 import datetime
 
-from monitor.models import ReplicationStatus
+from ..models import ReplicationStatus
 
 
 def update_rep_status(replication, data):

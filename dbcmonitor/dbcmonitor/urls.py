@@ -7,7 +7,7 @@ urlpatterns = patterns(
 
     url(r'^$', RedirectView.as_view(url='/monitor')),
 
-    url(r'^monitor/', include('monitor.urls')),
+    url(r'^monitor/', include('replications.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
 )

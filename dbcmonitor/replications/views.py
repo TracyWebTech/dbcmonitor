@@ -1,10 +1,10 @@
 import json
+
 from django.shortcuts import HttpResponse, render_to_response
 
-from monitor.models import Organization, Replication, ReplicationStatus, \
-    Database, Table, TableStatus
-
-from monitor.utils.update import update_rep_status
+#from .models import (Organization, Replication, ReplicationStatus,
+#                     Database, Table, TableStatus)
+from .utils.update import update_rep_status
 
 
 def dashboard(request):
