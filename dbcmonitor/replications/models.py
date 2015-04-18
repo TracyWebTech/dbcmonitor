@@ -48,13 +48,13 @@ class ReplicationStatus(models.Model):
 
     def css_class(self):
         if int(self.status) in self.OK:
-            return 'ok'
+            return 'alert-success'
 
         elif int(self.status) in self.WARN:
-            return 'warn'
+            return 'alert-warning'
 
         elif int(self.status) in self.ERROR:
-            return 'error'
+            return 'alert-danger'
 
         return ''
 

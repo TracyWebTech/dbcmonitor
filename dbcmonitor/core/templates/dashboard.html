@@ -1,6 +1,13 @@
 {% extends "base.html" %}
-{% load replication %}
+{% load replication staticfiles %}
+
+{% block css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static "css/dashboard.css" %}">
+{% endblock %}
 
 {% block content %}
-  {% status_table %}
+  <div class="replication-status-wrap">
+    {% status_table %}
+  </div>
 {% endblock %}
