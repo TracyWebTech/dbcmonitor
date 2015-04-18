@@ -21,10 +21,16 @@ class Replication(models.Model):
 class ReplicationStatus(models.Model):
 
     STATUS_OK = 0
+    STATUS_CONFLICT = 1
     STATUS_UNKNOWN = 99
+
+    OK = [STATUS_OK]
+    WARN = [STATUS_UNKNOWN]
+    ERROR = [STATUS_CONFLICT]
 
     STATUS_CHOICES = (
         (STATUS_OK, 'OK'),
+        (STATUS_CONFLICT, 'Conflict'),
         (STATUS_UNKNOWN, 'Unknown Error'),
     )
 
@@ -39,6 +45,18 @@ class ReplicationStatus(models.Model):
     class Meta:
         verbose_name_plural = _('Replication Status')
         get_latest_by = 'sent_time'
+
+    def css_class(self):
+        if int(self.status) in self.OK:
+            return 'ok'
+
+        elif int(self.status) in self.WARN:
+            return 'warn'
+
+        elif int(self.status) in self.ERROR:
+            return 'error'
+
+        return ''
 
 
 class ReplicationError(models.Model):

@@ -1,0 +1,20 @@
+
+<table>
+  {% for line in status_table %}
+    {% if forloop.first %}
+      <tr>
+      {% for head in line %}
+        <th class="header">{% firstof head '' %}</th>
+      {% endfor %}
+      </tr>
+    {% else %}
+      <tr>
+      {% for column in line %}
+        <td class="{% if column and not column.status %}header{% endif %} {{ column.css_class }}">
+          {% firstof column.get_status_display column '' %}
+        </td>
+      {% endfor %}
+      </tr>
+    {% endif %}
+  {% endfor %}
+</table>
