@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.views.generic import RedirectView
 
 urlpatterns = patterns('',  # noqa
-    url(r'^$', RedirectView.as_view(url='/monitor')),
+    url(r'^$', 'core.views.dashboard'),
 
     url(r'^monitor/', include('replications.urls')),
 
