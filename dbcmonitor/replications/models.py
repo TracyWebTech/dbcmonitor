@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from core.models import Database
 from organizations.models import Organization
 
 from .managers import ReplicationManager
@@ -8,12 +9,13 @@ from .managers import ReplicationManager
 
 class Replication(models.Model):
     organization = models.ForeignKey(Organization)
-    database = models.CharField(max_length=64)
+    database = models.ForeignKey(Database)
     master = models.CharField(max_length=255)
     slave = models.CharField(max_length=255)
 
     def __str__(self):
-        return '{} ({} -> {})'.format(self.database, self.master, self.slave)
+        return '{} ({} -> {})'.format(self.database.name, self.master,
+                                      self.slave)
 
     objects = ReplicationManager()
 
@@ -57,6 +59,10 @@ class ReplicationStatus(models.Model):
             return 'alert-danger'
 
         return ''
+
+    def __str__(self):
+        return '{} - {}'.format(self.get_status_display(),
+                                self.replication.__str__())
 
 
 class ReplicationError(models.Model):
