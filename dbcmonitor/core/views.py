@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 
-from core.models import Database
+from replications.models import Database
 
 
 def dashboard(request, db_slug):

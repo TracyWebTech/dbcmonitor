@@ -1,10 +1,22 @@
 from django.db import models
+from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 
-from core.models import Database
 from organizations.models import Organization
 
 from .managers import ReplicationManager
+
+
+class Database(models.Model):
+    name = models.CharField(max_length=64)
+    slug = models.SlugField(max_length=64)
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Database, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
 
 class Replication(models.Model):
