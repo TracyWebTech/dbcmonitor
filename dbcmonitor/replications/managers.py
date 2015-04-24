@@ -14,7 +14,7 @@ class ReplicationManager(models.Manager):
         status_dict = {}
 
         queryset = self.get_queryset()
-        for replication in queryset.filter(database__pk=db.pk):
+        for replication in queryset.filter(database_slug=db):
             master_row = status_dict.get(replication.master)
             if not master_row:
                 master_row = dict.fromkeys(self.slaves())
@@ -26,6 +26,8 @@ class ReplicationManager(models.Manager):
 
     def status_table(self, db):
         current_status = self.current_status(db)
+        if not current_status:
+            return []
 
         table_header = current_status.values()[0].keys()
         table_header.insert(0, None)

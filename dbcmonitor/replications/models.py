@@ -7,29 +7,22 @@ from organizations.models import Organization
 from .managers import ReplicationManager
 
 
-class Database(models.Model):
-    name = models.CharField(max_length=64)
-    slug = models.SlugField(max_length=64)
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
-        super(Database, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return self.name
-
-
 class Replication(models.Model):
-    organization = models.ForeignKey(Organization)
-    database = models.ForeignKey(Database)
-    master = models.CharField(max_length=255)
-    slave = models.CharField(max_length=255)
+    organization = models.ForeignKey(Organization, db_index=True)
+    master = models.CharField(max_length=255, db_index=True)
+    slave = models.CharField(max_length=255, db_index=True)
+    database = models.CharField(max_length=64)
+    database_slug = models.SlugField(max_length=64)
 
     def __str__(self):
-        return '{} ({} -> {})'.format(self.database.name, self.master,
-                                      self.slave)
+        return '{} ({} -> {})'.format(self.database, self.master, self.slave)
 
     objects = ReplicationManager()
+
+    class Meta:
+        unique_together = (
+            ('database', 'master', 'slave', 'organization'),
+        )
 
 
 class ReplicationStatus(models.Model):
