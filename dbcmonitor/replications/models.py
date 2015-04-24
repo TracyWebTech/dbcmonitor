@@ -14,10 +14,14 @@ class Replication(models.Model):
     database = models.CharField(max_length=64)
     database_slug = models.SlugField(max_length=64)
 
+    objects = ReplicationManager()
+
+    def save(self, *args, **kwargs):
+        self.database_slug = slugify(self.database)
+        return super(Replication, self).save(*args, **kwargs)
+
     def __str__(self):
         return '{} ({} -> {})'.format(self.database, self.master, self.slave)
-
-    objects = ReplicationManager()
 
     class Meta:
         unique_together = (
