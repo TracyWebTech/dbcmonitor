@@ -10,6 +10,7 @@ from .utils.update import update_rep_status
 def dashboard(request):
     template = 'monitor.html'
     db_status_list = []
+
     for db in Database.objects.all().order_by('-status_date'):
         db_status = {}
         db_status['name'] = db.name
